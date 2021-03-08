@@ -19,21 +19,22 @@ import psutil
 def startChrome():
  for p in psutil.process_iter():
   try:
-   if 'Google Chrome' in p.name():
+   if 'Google Chrome' in p.name() and p.name() != 'Google Chrome Beta' and p.parent().name() != 'Google Chrome Beta':
     p.kill()
   except psutil.Error:
    pass
  options = webdriver.ChromeOptions()
- options.add_argument("--user-data-dir=/Users/olivia/Library/Application Support/Google/Chrome Beta/")
+ options.add_argument("--user-data-dir=/Users/olivia/Library/Application Support/Google/Chrome/")
  options.add_argument("--profile-directory=Profile 2")
  options.add_argument("--enable-accessibility-tab-switcher")
+ options.add_argument("--disable-extensions")
  driver = webdriver.Chrome('/Users/olivia/chromedriver 2', options=options)
  driver.set_page_load_timeout(10)
  return driver
 
 def startChromeheadless():
  options = webdriver.ChromeOptions()
- options.add_argument("--user-data-dir=/Users/olivia/Library/Application Support/Google/Chrome Beta/")
+ options.add_argument("--user-data-dir=/Users/olivia/Library/Application Support/Google/Chrome/")
  options.add_argument("--profile-directory=Profile 2")
  options.add_argument("--enable-accessibility-tab-switcher")
  options.add_argument("--disable-extensions")
@@ -143,7 +144,7 @@ def exp_fitbit_csv():
 
 def main():
  count_argv = len(sys.argv)
- for n in range(count_argv):  
+ for n in range(count_argv):
   if sys.argv[n] == "sync":
    get_fitbit_sync()
   elif sys.argv[n] == "export":
