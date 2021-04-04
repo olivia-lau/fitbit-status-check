@@ -14,6 +14,8 @@ except ImportError:
  import Image
 from screen_search import *
 import psutil
+# import requests
+# from bs4 import BeautifulSoup
 
 
 def startChrome():
@@ -54,14 +56,22 @@ weekdays = {"Mon": 0, "Tue": 1, "Wed": 2, "Thu": 3, "Fri": 4, "Sat": 5, "Sun": 6
 
 def get_fitbit_sync():
  last_sync_times = []
- driver = startChromeheadless()
+ driver = startChrome()
+ driver.get('https://www.fitbit.com/logout')
+ ## Scrape current ID values of email, password fields
+ element = WebDriverWait(driver, 10000).until(
+  EC.presence_of_element_located((By.TAG_NAME, 'form'))
+  )
+ login_form_element = driver.find_element_by_tag_name('body').find_element_by_id('wrapper-login').find_element_by_tag_name('form').find_elements_by_tag_name('input')
+ login_field_dict = {}
+ for element in login_form_element:
+  login_field_dict[element.get_property('type')] = element.get_property('id')
+
  for email, password in logins.items():
   driver.get('https://www.fitbit.com/logout')
-  element = WebDriverWait(driver, 10000).until(
-   EC.presence_of_element_located((By.XPATH, '//*[@id="ember661"]'))
-   )
-  driver.find_element_by_xpath('//*[@id="ember661"]').send_keys(email)
-  driver.find_element_by_xpath('//*[@id="ember662"]').send_keys(password)
+  time.sleep(2)
+  driver.find_element_by_xpath('//*[@id="' + login_field_dict['email'] + '"]').send_keys(email)
+  driver.find_element_by_xpath('//*[@id="' + login_field_dict['password'] + '"]').send_keys(password)
   driver.find_element_by_xpath('//*[@id="loginForm"]/div[4]/div').submit()
   element = WebDriverWait(driver, 10000).until(
    EC.presence_of_element_located((By.XPATH, '//*[@id="dash"]/div[1]/div[2]'))
@@ -95,13 +105,23 @@ def get_fitbit_sync():
 
 def exp_fitbit_csv():
  driver = startChrome()
+ driver.get('https://www.fitbit.com/logout')
+ ## Scrape current ID values of email, password fields
+ element = WebDriverWait(driver, 10000).until(
+  EC.presence_of_element_located((By.TAG_NAME, 'form'))
+  )
+ login_form_element = driver.find_element_by_tag_name('body').find_element_by_id('wrapper-login').find_element_by_tag_name('form').find_elements_by_tag_name('input')
+ login_field_dict = {}
+ for element in login_form_element:
+  login_field_dict[element.get_property('type')] = element.get_property('id')
+
  for email, password in logins.items():
   driver.get('https://www.fitbit.com/logout')
   element = WebDriverWait(driver, 10000).until(
-   EC.presence_of_element_located((By.XPATH, '//*[@id="ember661"]'))
+   EC.presence_of_element_located((By.XPATH, '//*[@id="' + login_field_dict['email'] + '"]'))
    )
-  driver.find_element_by_xpath('//*[@id="ember661"]').send_keys(email)
-  driver.find_element_by_xpath('//*[@id="ember662"]').send_keys(password)
+  driver.find_element_by_xpath('//*[@id="' + login_field_dict['email'] + '"]').send_keys(email)
+  driver.find_element_by_xpath('//*[@id="' + login_field_dict['password'] + '"]').send_keys(password)
   driver.find_element_by_xpath('//*[@id="loginForm"]/div[4]/div').submit()
   element = WebDriverWait(driver, 10000).until(
    EC.presence_of_element_located((By.XPATH, '//*[@id="dash"]/div[1]/div[2]'))
